@@ -72,7 +72,9 @@ repositories {
 
 dependencies {
     //noinspection GradleDynamicVersion
-    implementation 'com.facebook.react:react-native:+'  // From node_modules
+    implementation 'com.facebook.react:react-native:+'
+    implementation files('lib/core-3.3.4-SNAPSHOT.jar')
+    // From node_modules
 }
 
 def configureReactNativePom(def pom) {

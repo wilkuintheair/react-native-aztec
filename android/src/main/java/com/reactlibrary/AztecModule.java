@@ -4,6 +4,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
+import com.google.zxing.BarcodeFormat;
 
 public class AztecModule extends ReactContextBaseJavaModule {
 
@@ -22,6 +23,6 @@ public class AztecModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void sampleMethod(String stringArgument, int numberArgument, Callback callback) {
         // TODO: Implement some actually useful functionality
-        callback.invoke("Received numberArgument: " + numberArgument + " stringArgument: " + stringArgument);
+        callback.invoke(BarcodeFormat.AZTEC + " Received numberArgument: " + numberArgument + " stringArgument: " + stringArgument);
     }
 }
