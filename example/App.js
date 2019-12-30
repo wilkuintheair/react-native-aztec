@@ -8,20 +8,20 @@
  * https://github.com/facebook/react-native
  */
 
-import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
-import Aztec from 'react-native-aztec';
+import React, {Component} from 'react';
+import {StyleSheet, Text, View, Button} from 'react-native';
+import {Aztec, ImagePickerModule} from 'react-native-aztec';
 
 export default class App extends Component<{}> {
   state = {
     status: 'starting',
-    message: '--'
+    message: '--',
   };
   componentDidMount() {
-    Aztec.sampleMethod('Testing', 123, (message) => {
+    Aztec.sampleMethod('Testing', 123, message => {
       this.setState({
         status: 'native callback received',
-        message
+        message,
       });
     });
   }
@@ -32,6 +32,14 @@ export default class App extends Component<{}> {
         <Text style={styles.instructions}>STATUS: {this.state.status}</Text>
         <Text style={styles.welcome}>☆NATIVE CALLBACK MESSAGE☆</Text>
         <Text style={styles.instructions}>{this.state.message}</Text>
+        <Button
+          onPress={() =>
+            ImagePickerModule.pickImage().then((resolve, reject) =>
+              console.log(resolve, reject),
+            )
+          }
+          title={'Pick'}
+        />
       </View>
     );
   }

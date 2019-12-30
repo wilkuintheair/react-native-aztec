@@ -13,7 +13,10 @@ import com.facebook.react.bridge.JavaScriptModule;
 public class AztecPackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Arrays.<NativeModule>asList(new AztecModule(reactContext));
+        return Arrays.<NativeModule>asList(
+                new AztecModule(reactContext),
+                new ImagePickerModule(reactContext)
+        );
     }
 
     @Override
