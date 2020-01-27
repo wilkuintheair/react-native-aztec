@@ -9,38 +9,36 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Button} from 'react-native';
-import {Aztec, ImagePickerModule} from 'react-native-aztec';
+import {Button, StyleSheet, Text, SafeAreaView, ScrollView} from 'react-native';
+import {ImagePickerModule} from 'react-native-aztec';
 
 export default class App extends Component<{}> {
   state = {
     status: 'starting',
     message: '--',
+    aztecData: null,
   };
-  componentDidMount() {
-    Aztec.sampleMethod('Testing', 123, message => {
-      this.setState({
-        status: 'native callback received',
-        message,
-      });
-    });
-  }
   render() {
+    const {aztecData} = this.state;
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>☆Aztec example☆</Text>
-        <Text style={styles.instructions}>STATUS: {this.state.status}</Text>
-        <Text style={styles.welcome}>☆NATIVE CALLBACK MESSAGE☆</Text>
-        <Text style={styles.instructions}>{this.state.message}</Text>
-        <Button
-          onPress={() =>
-            ImagePickerModule.pickImage().then((resolve, reject) =>
-              console.log(resolve, reject),
-            )
-          }
-          title={'Pick'}
-        />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}>
+          {aztecData && <Text>{aztecData.replace(/\|/g, '\n')}</Text>}
+          <Button
+            onPress={async () => {
+              try {
+                const aztecData = await ImagePickerModule.pickImage();
+                this.setState({aztecData});
+              } catch (e) {
+                console.log(e);
+              }
+            }}
+            title={'Pick'}
+          />
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 }
@@ -48,9 +46,11 @@ export default class App extends Component<{}> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F5FCFF',
+  },
+  contentContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
   },
   welcome: {
     fontSize: 20,

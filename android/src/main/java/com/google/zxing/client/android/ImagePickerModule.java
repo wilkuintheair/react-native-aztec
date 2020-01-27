@@ -1,4 +1,4 @@
-package com.reactlibrary;
+package com.google.zxing.client.android;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,7 +16,7 @@ import com.facebook.react.bridge.BaseActivityEventListener;
  */
 public class ImagePickerModule extends ReactContextBaseJavaModule {
 
-    private static final int IMAGE_PICKER_REQUEST = 467081;
+    private static final int IMAGE_PICKER_REQUEST = 65530;
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
     private static final String E_PICKER_CANCELLED = "E_PICKER_CANCELLED";
     private static final String E_FAILED_TO_SHOW_PICKER = "E_FAILED_TO_SHOW_PICKER";
@@ -33,6 +33,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule {
                     if (resultCode == Activity.RESULT_CANCELED) {
                         mPickerPromise.reject(E_PICKER_CANCELLED, "Image picker was cancelled");
                     } else if (resultCode == Activity.RESULT_OK) {
+                        mPickerPromise.resolve(intent.getStringExtra("MESSAGE"));
                         Uri uri = intent.getData();
 
                         if (uri == null) {
@@ -40,6 +41,8 @@ public class ImagePickerModule extends ReactContextBaseJavaModule {
                         } else {
                             mPickerPromise.resolve(uri.toString());
                         }
+                    } else {
+                        mPickerPromise.resolve(resultCode);
                     }
 
                     mPickerPromise = null;
@@ -77,9 +80,11 @@ public class ImagePickerModule extends ReactContextBaseJavaModule {
 
             galleryIntent.setType("image/*");
 
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
+            final Intent captureIntent = new Intent(currentActivity.getApplicationContext(), CaptureActivity.class);
 
-            currentActivity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+//            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
+
+            currentActivity.startActivityForResult(captureIntent, IMAGE_PICKER_REQUEST);
         } catch (Exception e) {
             mPickerPromise.reject(E_FAILED_TO_SHOW_PICKER, e);
             mPickerPromise = null;

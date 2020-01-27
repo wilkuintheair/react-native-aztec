@@ -1,4 +1,4 @@
-package com.reactlibrary;
+package com.google.zxing.client.android;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
