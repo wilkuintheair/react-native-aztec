@@ -22,7 +22,6 @@ import android.view.MenuInflater;
 import android.view.WindowManager;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.FinishListener;
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.client.android.R;
 
@@ -223,8 +222,6 @@ public final class EncodeActivity extends Activity {
   private void showErrorMessage(int message) {
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
     builder.setMessage(message);
-    builder.setPositiveButton(R.string.button_ok, new FinishListener(this));
-    builder.setOnCancelListener(new FinishListener(this));
     builder.show();
   }
 }

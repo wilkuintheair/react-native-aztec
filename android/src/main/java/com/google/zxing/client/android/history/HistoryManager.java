@@ -18,13 +18,8 @@ package com.google.zxing.client.android.history;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.google.zxing.client.android.Intents;
-import com.google.zxing.client.android.PreferencesActivity;
-import com.google.zxing.client.android.result.ResultHandler;
 
 import android.app.Activity;
-import android.content.ContentValues;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.SQLException;
@@ -32,7 +27,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.File;
@@ -67,16 +61,12 @@ public final class HistoryManager {
   private static final String[] COUNT_COLUMN = { "COUNT(1)" };
 
   private static final String[] ID_COL_PROJECTION = { DBHelper.ID_COL };
-  private static final String[] ID_DETAIL_COL_PROJECTION = { DBHelper.ID_COL, DBHelper.DETAILS_COL };
   private static final Pattern DOUBLE_QUOTE = Pattern.compile("\"", Pattern.LITERAL);
 
   private final Activity activity;
-  private final boolean enableHistory;
 
   public HistoryManager(Activity activity) {
     this.activity = activity;
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-    enableHistory = prefs.getBoolean(PreferencesActivity.KEY_ENABLE_HISTORY, true);
   }
 
   public boolean hasHistoryItems() {
@@ -141,83 +131,6 @@ public final class HistoryManager {
                                   DBHelper.TIMESTAMP_COL + " DESC")) {
       cursor.move(number + 1);
       db.delete(DBHelper.TABLE_NAME, DBHelper.ID_COL + '=' + cursor.getString(0), null);
-    } catch (SQLException sqle) {
-      Log.w(TAG, sqle);
-    }
-  }
-
-  public void addHistoryItem(Result result, ResultHandler handler) {
-    // Do not save this item to the history if the preference is turned off, or the contents are
-    // considered secure.
-    if (!activity.getIntent().getBooleanExtra(Intents.Scan.SAVE_HISTORY, true) ||
-        handler.areContentsSecure() || !enableHistory) {
-      return;
-    }
-
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-    if (!prefs.getBoolean(PreferencesActivity.KEY_REMEMBER_DUPLICATES, false)) {
-      deletePrevious(result.getText());
-    }
-
-    ContentValues values = new ContentValues();
-    values.put(DBHelper.TEXT_COL, result.getText());
-    values.put(DBHelper.FORMAT_COL, result.getBarcodeFormat().toString());
-    values.put(DBHelper.DISPLAY_COL, handler.getDisplayContents().toString());
-    values.put(DBHelper.TIMESTAMP_COL, System.currentTimeMillis());
-
-    SQLiteOpenHelper helper = new DBHelper(activity);
-    try (SQLiteDatabase db = helper.getWritableDatabase()) {
-      // Insert the new entry into the DB.
-      db.insert(DBHelper.TABLE_NAME, DBHelper.TIMESTAMP_COL, values);
-    } catch (SQLException sqle) {
-      Log.w(TAG, sqle);
-    }
-  }
-
-  public void addHistoryItemDetails(String itemID, String itemDetails) {
-    // As we're going to do an update only we don't need need to worry
-    // about the preferences; if the item wasn't saved it won't be udpated
-    SQLiteOpenHelper helper = new DBHelper(activity);
-    try (SQLiteDatabase db = helper.getWritableDatabase();
-         Cursor cursor = db.query(DBHelper.TABLE_NAME,
-                                  ID_DETAIL_COL_PROJECTION,
-                                  DBHelper.TEXT_COL + "=?",
-                                  new String[] { itemID },
-                                  null,
-                                  null,
-                                  DBHelper.TIMESTAMP_COL + " DESC",
-                                  "1")) {
-      String oldID = null;
-      String oldDetails = null;
-      if (cursor.moveToNext()) {
-        oldID = cursor.getString(0);
-        oldDetails = cursor.getString(1);
-      }
-
-      if (oldID != null) {
-        String newDetails;
-        if (oldDetails == null) {
-          newDetails = itemDetails;
-        } else if (oldDetails.contains(itemDetails)) {
-          newDetails = null;
-        } else {
-          newDetails = oldDetails + " : " + itemDetails;
-        } 
-        if (newDetails != null) {
-          ContentValues values = new ContentValues();
-          values.put(DBHelper.DETAILS_COL, newDetails);
-          db.update(DBHelper.TABLE_NAME, values, DBHelper.ID_COL + "=?", new String[] { oldID });
-        }
-      }
-    } catch (SQLException sqle) {
-      Log.w(TAG, sqle);
-    }
-  }
-
-  private void deletePrevious(String text) {
-    SQLiteOpenHelper helper = new DBHelper(activity);
-    try (SQLiteDatabase db = helper.getWritableDatabase()) {
-      db.delete(DBHelper.TABLE_NAME, DBHelper.TEXT_COL + "=?", new String[] { text });
     } catch (SQLException sqle) {
       Log.w(TAG, sqle);
     }
