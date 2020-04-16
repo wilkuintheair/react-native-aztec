@@ -37,7 +37,6 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
@@ -99,8 +98,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     setContentView(R.layout.capture);
 
     hasSurface = false;
-
-    PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
   }
 
   @Override
@@ -414,7 +411,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
   private void displayFrameworkBugMessageAndExit() {
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle(getString(R.string.app_name));
+    builder.setTitle("Error");
     builder.setMessage(getString(R.string.msg_camera_framework_bug));
     builder.show();
   }
